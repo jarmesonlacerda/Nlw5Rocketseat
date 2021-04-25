@@ -9,8 +9,13 @@ import ptBR from 'date-fns/locale/pt-BR'
 
 import { api } from '../services/api'
 import { convertDurationToTimeString } from '../utils/convertDurationToTimeString'
+import { useContext } from 'react'
+import { PlayerContext } from '../contexts/PlayerContext'
 
 import styles from './home.module.scss'
+import { Player } from '../components/Player'
+
+
 
 // import { useEffect } from "react"
 
@@ -19,7 +24,7 @@ type Episode = {
   title: string;
   thumbnail: string;
   members: string;
-  duration: string;
+  duration: number;
   durationAsString: string;
   url: string;
   publishedAt: string;
@@ -33,6 +38,8 @@ type HomeProps = {
 
 export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
 
+  const { play } = useContext(PlayerContext)
+
   // Utilizando o método de SPA
   // useEffect(() => {
   //   fetch('http://localhost:3333/episodes')
@@ -44,7 +51,7 @@ export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
     // HTML dentro do JS ou TS.
     <div className={styles.homepage}>
       <section className={styles.latestEpisodes}>
-        <h2>Últimos lançamentos</h2>
+        <h2>Últimos lançamentos {Player}</h2>
 
         <ul>
           {/* Quando fazemos um map, precisamos adicionar uma "key" no primeiro elemento */}
@@ -68,7 +75,7 @@ export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
                   <span>{episode.durationAsString}</span>
                 </div>
 
-                <button type="button">
+                <button type="button" onClick={() => play(episode)}>
                   <img src="/play-green.svg" alt="Tocar episódio" />
                 </button>
               </li>
@@ -144,7 +151,7 @@ export const getStaticProps: GetStaticProps = async () => {
   const { data } = await api.get('episodes?', {
     params: {
       _limit: 12,
-      _sort: 'publised_at',
+      _sort: 'published_at',
       _order: 'desc'
     }
   })
